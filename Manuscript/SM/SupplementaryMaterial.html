@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title>Supplementary Material for Important, Unique, Central: Species’ Relevance in Food Webs</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="/users/math/gvd16/.pandoc/marked/kultiad-serif.css">
+</head>
+<body>
+<header>
+<h3 class="date">February 2016</h3>
+
+<h1 class="title">Supplementary Material for <em>Important, Unique, Central: Species’ Relevance in Food Webs</em></h1>
+
+
+<h2 class="author">Giulio Valentino Dalla Riva</h2>
+<p class="affilation"><em>University of Canterbury, New Zealand</em></p>
+<h2 class="author">Carey E. Priebe</h2>
+<p class="affilation"><em>John Hopkins University, MD, USA</em></p>
+
+</header>
+
+
+
+<h1 id="supplementary-methods">Supplementary Methods</h1>
+<h2 id="the-random-dot-product-graph-model-context-and-details">The Random Dot Product Graph model: context and details</h2>
+<p>In our paper we introduce the Random Dot Product Graph model (RDPG) for food webs. This model can be seen as a special case of the stochastic block graph model, originally developed for the analysis of undirected social networks <span class="citation">(Holland <em>et al.</em> 1983)</span> and subsequently generalised to directed graphs <span class="citation">(Wang &amp; Wong 1987)</span>. Under the stochastic blockmodel assumptions, each of the nodes of a network are assigned to one of <span class="math inline"><em>K</em></span> distinct blocks. The probability of a link within and between the <span class="math inline"><em>K</em></span> blocks are given by the model parameters. However, in practice we do not observe the assignment of the nodes to the blocks; rather, we observe the interactions between nodes and try to estimate the assignment. This approach has been by some recent models for food webs <span class="citation">(Allesina &amp; Pascual 2009, baskerville2011spatial)</span>. Recently, it has been proved that a consistent block estimator (i.e., an estimator such that the proportion of nodes assigned to the wrong group converges in probability to zero as the number of the species grows to infinity) based on the spectral partitioning of the normalized Laplacian of the adjacency matrix exist <span class="citation">(Rohe <em>et al.</em> 2011)</span>. The RDPG model can be read as a particular case of the stochastic blockmodels <span class="citation">(Fishkind <em>et al.</em> 2013)</span> where each species is assigned to different block and the probability of the interaction from block (species) <span class="math inline"><em>i</em></span> to block (species) <span class="math inline"><em>j</em></span> depends on the distance between <span class="math inline"><em>i</em></span> and <span class="math inline"><em>j</em></span> in the metric space, i.e., it is given by the dot product of the two position vectors. We observe the realized interactions and estimate the position of the species in the metric space. Notice that, as the interaction probabilities are given by the pairwise distances, and the observed graph is an outcome of a stochastic process defined by those probabilities, any transformation of the metric space preserving the distance structure begets an equivalent model.</p>
+<p>In particular, the RDPG model we consider in the paper is a generalization of the RDPG model to binary directed graphs: as the interactions are no more symmetric, we have to consider a pair of metric spaces, an <em>inward</em> and an <em>outward</em> one. We use an estimator based on the spectral partitioning of adjacency (non Laplacian) matrix of a graph <span class="citation">(Sussman <em>et al.</em> 2012)</span> to estimate species positions in the underlying metric space.</p>
+<p>With some abuse of notation, we let <span class="math inline"><em>A</em></span> denote both a food web and its adjacency matrix. Let the three matrices <span class="math inline"><em>L</em>, <em>Σ</em>, <em>R</em></span> denote a singular value decomposition of the adjacency matrix <span class="math inline"><em>A</em></span> (a food web with <span class="math inline"><em>S</em></span> species). Thus, the matrices <span class="math inline"><em>L</em>, <em>Σ</em>, <em>R</em></span> satisfy <span class="math inline"><em>A</em> = <em>L</em> × <em>Σ</em> × <em>R</em><sup><em>t</em></sup></span>; <span class="math inline"><em>L</em></span> and <span class="math inline"><em>R</em></span> are real, orthogonal <span class="math inline"><em>S</em> × <em>S</em></span> matrices; <span class="math inline"><em>Σ</em></span> is an <span class="math inline"><em>S</em> × <em>S</em></span> diagonal matrix whose entries are the singular values of <span class="math inline"><em>A</em></span>, in a non-decreasing order. Fixed a model dimension <span class="math inline"><em>d</em></span>, we define three new matrices:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline"><em>L</em>′</span>, an <span class="math inline"><em>S</em> × <em>d</em></span> matrix given by the first <span class="math inline"><em>d</em></span> columns of <span class="math inline"><em>L</em></span>;</li>
+<li><span class="math inline"><em>R</em>′</span>, an <span class="math inline"><em>S</em> × <em>d</em></span> matrix given by the first <span class="math inline"><em>d</em></span> columns of <span class="math inline"><em>R</em></span>;</li>
+<li><span class="math inline">(<em>Σ</em>′)<sup>1/2</sup></span>, an <span class="math inline"><em>d</em> × <em>d</em></span> diagonal matrix defined by the square root of the first <span class="math inline"><em>d</em></span> entries of <span class="math inline"><em>Σ</em></span>, i.e., the square root of the first <span class="math inline"><em>d</em></span> greatest singular values of <span class="math inline"><em>A</em></span>.</li>
+</ol>
+<p>Then, we let <span class="math inline">$\hat{L}$</span> denote the rescaled matrix <span class="math inline"><em>L</em>′ × (<em>Σ</em>′)<sup>1/2</sup></span> and we let <span class="math inline">$\hat{R}$</span> denote the rescaled matrix <span class="math inline">(<em>Σ</em>′)<sup>1/2</sup> × <em>R</em>′</span>. The two matrices <span class="math inline">$\hat{l}$</span> and <span class="math inline">$\hat{R}$</span> capture the <span class="math inline"><em>d</em></span> leading traits for the community of species as prey and predators: the rows of <span class="math inline">$\hat{L}$</span> define the species’ vulnerability functional traits (<em>outward</em>) and the rows of <span class="math inline">$\hat{R}$</span> define the foraging functional traits (<em>inward</em>) of the species in <span class="math inline"><em>A</em></span>. We call the column binding of <span class="math inline">$\hat{L}$</span> and <span class="math inline">$\hat{R}$</span> the species functional traits as both prey and predators (<em>total</em>).</p>
+<p>Notice that although <span class="math inline">$\hat{L}$</span> and <span class="math inline">$\hat{R}$</span> are not uniquely defined, as any orthogonal transformation of those matrices preserve their dot product (and hence the distance between the estimated stochastic food web’s backbone and its observed adjacency matrix), the species’ relative position and the induced pairwise distance structure in the abstract functional space are uniquely defined. The measures we introduce in the paper are based on the invariant structure of the food web, rather then on the absolute position of the species.</p>
+<p>Different approaches are available for the choice of a suitable dimension <span class="math inline"><em>d</em></span> range. This akin to a dimensionality reduction problem, discussed for the Principal Component Analysis scenario in <span class="citation">(Jolliffe 2002)</span>. The available methods include  selection procedures (e.g., the visual analysis of the singular values scree plot <span class="citation">(Cattell 1966)</span>, hard singular values thresholding <span class="citation">(Chatterjee &amp; others 2014,<span class="citation">Gavish &amp; Donoho (2014)</span>)</span> or the maximization of a profile likelihood function <span class="citation">(Zhu &amp; Ghodsi 2006)</span>) and  maximization of a goodness-of-fit criterion, as we exampled in <span class="citation">(Dalla Riva &amp; Stouffer 2015)</span>. In the datasets analysed all the previous methods provided compatible results.</p>
+<h3 id="the-rdpg-based-measures">The RDPG based measures</h3>
+<p>Let <span class="math inline"><em>X</em>(<em>A</em>)</span> denote the matrix of (outward, inward or total) functional traits of the species in the food web <span class="math inline"><em>A</em></span>. As we saw above, the pairwise distance structure induced by <span class="math inline"><em>X</em>(<em>A</em>)</span> is uniquely defined, and hence it is possible to investigate the distribution of the species in the functional traits space just estimated. In particular, we define the (outward, inward or total) <em>uniqueness</em> of a species <span class="math inline"><em>i</em></span> in the food web <span class="math inline"><em>A</em></span> as the mean distance between <span class="math inline"><em>i</em></span> and every other species <span class="math inline"><em>j</em></span> in the (outward, inward or total) functional traits space. Let <span class="math inline"><em>d</em>(<em>p</em>, <em>q</em>)</span> denote the <span class="math inline"><em>d</em></span> dimensional euclidean distance between the point <span class="math inline"><em>p</em></span> and <span class="math inline"><em>q</em></span>; let <span class="math inline">⟨<em>f</em>(<em>i</em>, <em>j</em>)⟩<sub><em>j</em></sub></span> be the mean of the function <span class="math inline"><em>f</em></span> over all the species <span class="math inline"><em>j</em></span> except <span class="math inline"><em>i</em></span>. That is, <span class="math inline">$\langle f(i,j) \rangle_j = \frac{1}{S}\sum_{j \neq i}(f(i,j))$</span>. Then, the <strong>uniqueness</strong> of species <span class="math inline"><em>i</em></span> is defined as:</p>
+
+<p>Let <span class="math inline"><em>M</em></span> denote a <span class="math inline"><em>N</em> × <em>M</em></span> matrix: we denote <span class="math inline"><em>M</em><sup><em>d</em>(<em>i</em>)</sup></span> the matrix obtained by dropping the <span class="math inline"><em>i</em></span>-th column and row from <span class="math inline"><em>M</em></span>; te denote <span class="math inline"><em>M</em><sup><em>r</em>(<em>i</em>)</sup></span> the matrix obtained by removing just the <span class="math inline"><em>i</em></span>-th row from <span class="math inline"><em>M</em></span>. Let <span class="math inline"><em>W</em></span> denote another <span class="math inline"><em>N</em> × <em>M</em></span> matrix. We define <span class="math inline"><em>M</em><sub><em>p</em><em>r</em><em>o</em><em>c</em></sub>(<em>W</em>)</span> as the Procrustes transformation (i.e., a combination of translation, rotation and uniform rescaling) of <span class="math inline"><em>M</em></span> of minimal distance to <span class="math inline"><em>W</em></span>; we will drop the argument <span class="math inline">(<em>W</em>)</span> from the notation whenever it is clear from the context. Finally, we denote <span class="math inline">||<em>M</em>||<sub><em>F</em></sub></span> the squared sum of entries of <span class="math inline"><em>M</em></span>, i.e., the Frobenius norm of the matrix <span class="math inline"><em>M</em></span> . In particular, <span class="math inline">||<em>M</em><sub><em>p</em><em>r</em><em>o</em><em>c</em></sub>(<em>W</em>) − <em>W</em>||<sub><em>F</em></sub></span> is also called the Procrustes distance between <span class="math inline"><em>M</em></span> and <span class="math inline"><em>W</em></span> <span class="citation">(Dryden &amp; Mardia 1998)</span>.</p>
+<p>We compute the matrix <br /><span class="math display">[<em>X</em>(<em>A</em><sup><em>d</em>(<em>i</em>)</sup>)]<sub><em>p</em><em>r</em><em>o</em><em>c</em></sub>(<em>X</em>(<em>A</em>)<sup><em>r</em>(<em>i</em>)</sup>) , </span><br /> that is, the Procrustes transformation of <span class="math inline"><em>X</em>(<em>A</em><sup><em>d</em>(<em>i</em>)</sup>)</span> of minimal distance to <span class="math inline"><em>X</em>(<em>A</em>)<sup><em>r</em>(<em>i</em>)</sup></span> and we denote it <span class="math inline">$\hat{X}\left(A^{d(i)}\right)$</span>. We define the rank <span class="math inline"><em>d</em></span> <strong>strain</strong> of the species <span class="math inline"><em>i</em></span> as the sum of squared entries of the differences between <span class="math inline"><em>X</em>(<em>A</em>)<sup><em>r</em>(<em>i</em>)</sup></span> and <span class="math inline">$\hat{X}\left(A^{d(i)}\right)$</span>. Being <span class="math inline"><em>X</em>(<em>A</em>)</span> the matrix of either the inward, outward or total <span class="math inline"><em>d</em></span> dimensional functional traits, we will speak of species’ ,  or  strain, respectively. In formula:</p>
+
+<p>Computing the strain of species <span class="math inline"><em>i</em></span> reduces to computing the ordinary Procrustes distance between the matrices <span class="math inline"><em>X</em>(<em>A</em>)<sup><em>r</em>(<em>i</em>)</sup></span> and <span class="math inline"><em>X</em>(<em>A</em><sup><em>d</em>(<em>i</em>)</sup>)</span>, which is implemented by the <em>procOPA</em> function in the R package  <span class="citation">(Dryden 2013,<span class="citation">R Core Team (2014)</span>)</span>.</p>
+<p>Finally, we identify the (outward, inward, total) diversity of the food web <span class="math inline"><em>A</em></span> as the volume of the convex hull containing all the species in the (outward, inward, total) functional traits space. Conceptually borrowing from the functional traits literature, we define the <strong>contribution</strong> of the species <span class="math inline"><em>i</em></span> to the food web (outward, inward, total) <strong>functional diversity</strong> as the volume difference of the convex hulls of <span class="math inline"><em>X</em>(<em>A</em>)</span> and <span class="math inline"><em>X</em>(<em>A</em>)<sup><em>r</em>(<em>i</em>)</sup></span>. We compute the convex hulls and their volumes using Qhull <span class="citation">(Barber <em>et al.</em> 1996)</span>, through the  package  <span class="citation">(Habel <em>et al.</em> 2014)</span>.</p>
+<h3 id="keystone-centralities">Keystone Centralities</h3>
+<p>We compare our novel measures with six graph centralities measures that have been adopted to idenfity keystone species in ecological networks. In particular, for each species <span class="math inline"><em>i</em></span> in the food web, we consider:</p>
+<ul>
+<li>the betweennessi <span class="citation">(BC, Freeman 1977)</span> of species <span class="math inline"><em>i</em></span>, given by the number <span class="math inline"><em>s</em><sub><em>j</em><em>i</em><em>j</em>′</sub></span> of shortest paths connecting every pair <span class="math inline"><em>j</em>, <em>j</em>′</span> of species in the food web traversing species <span class="math inline"><em>i</em></span>i, weighted by the total number <span class="math inline"><em>s</em><sub><em>j</em><em>j</em>′</sub></span> of paths between <span class="math inline"><em>j</em></span> and <span class="math inline"><em>j</em>′</span>: <br /><span class="math display">$$BC(i) := \frac{s_{jij'}}{s_{jj'}}$$</span><br /></li>
+<li>the closeness <span class="citation">(CC, Bavelas 1950)</span> of species <span class="math inline"><em>i</em></span>, defined as the reciprocal of the sum of the path distances, <span class="math inline"><em>d</em><sub><em>p</em></sub>( ⋅ )</span>, from <span class="math inline"><em>i</em></span> to every other species <span class="math inline"><em>j</em></span> in the food web: <br /><span class="math display"><em>C</em><em>C</em>(<em>i</em>) := (∑<sub><em>j</em> ≠ <em>i</em></sub><em>d</em><sub><em>p</em></sub>(<em>j</em>, <em>i</em>))<sup> − 1</sup></span><br /></li>
+<li>the degree (DC) of species <span class="math inline"><em>i</em></span>, measuring the number of interactions involving the species <span class="math inline"><em>i</em></span> (both as a predator or as a prey): <br /><span class="math display"><em>D</em><em>C</em>(<em>i</em>) := |{<em>j</em> ∈ <em>A</em>|<em>i</em> → <em>j</em><em>o</em><em>r</em><em>j</em> → <em>i</em>}|</span><br /></li>
+<li>the eigenvector centrality <span class="citation">(EC, Bonacich 1987)</span> of species <span class="math inline"><em>i</em></span>, that is a graph centrality satisfying the request that the score of each species <span class="math inline"><em>i</em></span> in the food web is proportional to the sum of the centrality scores of the species interacting with <span class="math inline"><em>i</em></span>. The values of EC are computed as the entries of the first eigenvector of <span class="math inline"><em>A</em></span>.</li>
+<li>the information centrality <span class="citation">(IC, Stephenson &amp; Zelen 1989)</span> of species <span class="math inline"><em>i</em></span>, that is the harmonic mean of the resistance distances <span class="citation">(Klein &amp; Randić 1993)</span> toward the species <span class="math inline"><em>i</em></span>. Let <span class="math inline"><em>I</em><sub><em>j</em><em>i</em></sub></span> denote the resistance distance from <span class="math inline"><em>j</em></span> to <span class="math inline"><em>i</em></span>, then: <br /><span class="math display">$$IC(i) := \frac{S}{\sum_{j \neq i}\left(I_{ji}\right)^{-1}}$$</span><br /></li>
+<li>the subgraph centrality <span class="citation">(SC, Estrada &amp; Rodriguez-Velazquez 2005)</span> of species <span class="math inline"><em>i</em></span>, which counts the number of returning loops starting from species <span class="math inline"><em>i</em></span>, discounted exponentially by their size. It is possible to give a closed expression for IC in terms of the exponential of the adjacency matrix <span class="math inline"><em>A</em></span>: <br /><span class="math display"><em>S</em><em>C</em>(<em>i</em>) := [<em>e</em><sup><em>A</em></sup>]<sub><em>i</em><em>i</em></sub></span><br /></li>
+</ul>
+<p>The above centralities can be computed directly from the adjacency matrix of the considered food web and are implemented in the  package  <span class="citation">(Csardi &amp; Nepusz 2006)</span>. For a discussion of the interpretation of the previous graph centralities in an ecological network context, see <span class="citation">(Jordán 2009,<span class="citation">Jordán <em>et al.</em> (2009)</span>)</span>.</p>
+
+<h1 id="data">Data</h1>
+<p>We analysed five different food webs. We present them graphically using the <span class="math inline"><em>x</em></span> axis to show the species’ omnivory index (adding some noise to avoid nodes overlap), the <span class="math inline"><em>y</em></span> axis to show the species trophic level, the size of the nodes to shows species total degree and the color of the nodes their ranking based on the total strain (deep blue for lower values, light yellow for higher values).</p>
+<p>The original images and the interaction data are available online at the webpage of the paper.</p>
+
+<h2 id="caribbean-sea-food-web">Caribbean Sea food web</h2>
+<p>We analyse the Caribbean sea food web as compiled by <span class="citation">(Opitz 1996)</span>. To observe how our model responds to leveld of taxonomic definitions, we consider both the original food web, where taxa are defined to the level of species, and a coarser version where we cluster species into families.</p>
+<div class="figure">
+<embed src="Images/Webs/Caribbean_Species.pdf" />
+<p class="caption">Caribbean Sea food web: (above) nodes represent families, (below) nodes represent species</p>
+</div>
+
+<h2 id="serengeti-baskerville-food-web">Serengeti (Baskerville) food web</h2>
+<div class="figure">
+<embed src="Images/Webs/Serengeti_Baskerville.pdf" />
+<p class="caption">Serengeti National Park food web (by Baskerville)</p>
+</div>
+<p>The Serengeti National Park food web was compiled by <span class="citation">(Baskerville <em>et al.</em> 2011)</span>, notice the increased definition of the plant guilds with respect to <span class="citation">(Visser <em>et al.</em> 2011)</span>. The higher degree of omnivory in this web is only apparent and is due to the normalisation effect.</p>
+
+<h2 id="serengeti-de-visser-food-web">Serengeti (de Visser) food web</h2>
+<div class="figure">
+<embed src="Images/Webs/Serengeti_deVisser.pdf" />
+<p class="caption">Serengeti National Park food web (de Visser)</p>
+</div>
+<p>The Serengeti National Park food web by <span class="citation">(Visser <em>et al.</em> 2011)</span></p>
+
+<h2 id="weddell-sea-food-web">Weddell Sea food web</h2>
+<div class="figure">
+<embed src="Images/Webs/Weddell.pdf" />
+<p class="caption">Weddell Sea food web</p>
+</div>
+<p>The Weddell Sea food web is a large marine food web compiled by <span class="citation">(Jennings <em>et al.</em> 2002)</span></p>
+
+<h1 id="results">Results</h1>
+<h2 id="weighted-networks">Weighted networks</h2>
+<p>In the manuscript we presented species strain from binary food webs’ data only. In fact, obtaining estimates for the amount of energy flowing between a pair of species is often difficult. Therefore, we usually have a more reliable knowledge of the topological structure of an interaction network rather than of its weighted version. However, the components of the species’ diets are not equally important. Thus, if the species’ ranking we estimated from the topological data were extremely sensitive to the interactions’ weight its applicability would be limited. On the other hand, if the topological species’ ranking were not affected at all by the specification of interactions weights, that would rise doubt about its ecological meaning.</p>
+<p>To test the extent to which our <em>strain</em> and <em>mean distance</em> measures are robust to the specification of interactions’ weights, we compared the ranking of the species based on topological data with the rankings we obtained by simulating interactions weights. To do so, we sampled the interactions weights from a Log-Normal distribution, truncated so that their minimum value was <span class="math inline">10<sup> − 6</sup></span> and normalised so that the maximum value was <span class="math inline">1</span>.</p>
+<p>The results we obtained show that the correlation between the topological and the weighted rankings were significant and positive for more than <span class="math inline">95%</span> of the simulations. However, the amount of variation in the weighted ranking explained by the topological ranking had a large variance (i.e., it spanned the range from almost null to almost one). Yet, the set of species with higher <em>strain</em> and the set of species with higher <em>mean distance</em> as estimated from the topological data was consistent across the simulated weighted networks, indicating that our measures are able to identigy the species with distinctively high ecological importance. Here we just show part of the results (restricted to the total functional trait space and the the Baskerville’s Serengeti and the Weddell sea food webs), to support the notion that the four species with highest strain and uniqueness as computed from the binary webs are consistently in the set of four species with highest strain and uniqueness as computed from weighted webs.</p>
+
+<p><embed src="Images/strain_weight/Serengeti_Baskerville_total.pdf" /> <embed src="Images/strain_weight/Weddell_total.pdf" /></p>
+<p>Frequency of presence in the set of four species with the highest strain as estimated by the simulated weighted networks for the four species with the highest strain as estimated by the topological networks.</p>
+
+<p><embed src="Images/meand_weight/Serengeti_Baskerville_total.pdf" /> <embed src="Images/meand_weight/Weddell_total.pdf" /></p>
+<p>Frequency of presence in the set of four species with the highest mean distance as estimated by the simulated weighted networks for the four species with the highest mean distance as estimated by the topological networks.</p>
+
+<p>We present here additional results similar to the ones presented in the main paper. All the original graphic files, the source code used to produce them, and the data on which they are based are available online at http://gvdr.github.io.</p>
+
+<h2 id="strain">Strain</h2>
+<div class="figure">
+<embed src="Images/strains_log.pdf" />
+<p class="caption">Total strain (log transformed) as function of the model dimension (rank).</p>
+</div>
+<p>We computed the (inward, outward and total) species strain for all the species in the five food webs.</p>
+
+<h2 id="strain-distribution">Strain distribution</h2>
+<p>We show here the distribution of the 3-dimensional total, inward and outward strain for the five foodwebs.</p>
+<div class="figure">
+<embed src="Images/Distrs/Caribbean_Speciesdistr.pdf" />
+<p class="caption">Caribbean Sea food web, nodes represent species</p>
+</div>
+<div class="figure">
+<embed src="Images/Distrs/Caribbean_Familiesdistr.pdf" />
+<p class="caption">Caribbean Sea food web, nodes represent families</p>
+</div>
+<div class="figure">
+<embed src="Images/Distrs/Serengeti_Baskervilledistr.pdf" />
+<p class="caption">Serengeti National Park food web (Baskerville)</p>
+</div>
+<div class="figure">
+<embed src="Images/Distrs/Serengeti_deVisserdistr.pdf" />
+<p class="caption">Serengeti National Park food web (de Visser)</p>
+</div>
+<div class="figure">
+<embed src="Images/Distrs/Weddelldistr.pdf" />
+<p class="caption">Weddell Sea food web</p>
+</div>
+
+<h2 id="strain-correlation">Strain correlation</h2>
+<div class="figure">
+<embed src="Images/Strains_corr.pdf" />
+<p class="caption">Correlation of the species’ total strain as a function of the model dimension</p>
+</div>
+<p>The choice of the model dimension does not substantially affect the ranking of species’ strain, supporting the notion that the measure is robust to model parameters. Deep blue for lower coefficients of determination, light yellow for higher values. All correlations are significant.</p>
+
+<h2 id="uniqueness-correlation">Uniqueness correlation</h2>
+<div class="figure">
+<embed src="Images/Md_corr.pdf" />
+<p class="caption">Correlation of the species’ total uniqueness as a function of the model dimension</p>
+</div>
+<p>The choice of the model dimension does not substantially affect the ranking of species’ uniqueness, supporting the notion that the measure is robust to model parameters. The rows show inward uniqueness, outward uniqueness and total uniqueness respectively. Deep blue for lower coefficients of determination, light yellow for higher values. Blank cells represent non significant correlations.</p>
+
+<h2 id="strain-vs.uniqueness">Strain vs. Uniqueness</h2>
+<div class="figure">
+<embed src="Images/indir.pdf" />
+<p class="caption">Correlation between species’ strain and uniqueness</p>
+</div>
+<p>There’s a significant correlation between species’ strain (inward, outward or total) and uniqueness (inward, outward or total). The correlation does not grow with the model dimension (and for the Caribbean Sea food web (species level), the Serengeti de Visser food web and the Weddell Sea food web it decreases).</p>
+
+<h2 id="strain-vs.keystone-centralities">Strain vs. Keystone centralities</h2>
+<div class="figure">
+<embed src="Images/Strain_corr_rP.pdf" />
+<p class="caption">Correlation between species’ strain and six classic centrality measures</p>
+</div>
+<p>There’s a significant correlation between species’ strain (inward, outward or total) and the six centrality measures we considered. We observe more often significant correlations at the lower model dimensions and the coefficients of determination do not grow with model dimensions. This suggest the conclusion the the food web are inherently low dimensional.</p>
+
+<h2 id="uniqueness-vs.keystone-centralities">Uniqueness vs. Keystone centralities</h2>
+<div class="figure">
+<img src="Images/MeanD_Keystones.png" alt="Correlation between species’ uniqueness and six classic centrality measures" />
+<p class="caption">Correlation between species’ uniqueness and six classic centrality measures</p>
+</div>
+<p>As for the species’ strain, there’s a significant correlation between species’ uniqueness (inward, outward or total) and the six centrality measures we considered. We observe more often significant correlations at the lower model dimensions and the coefficients of determination do not grow with model dimensions.</p>
+
+<div id="references" class="references">
+<h1 id="bibliography" class="unnumbered">Bibliography</h1>
+<div id="ref-allesina2009food">
+<p>1.Allesina, S. &amp; Pascual, M. (2009). Food web models: A plea for groups. <em>Ecology letters</em>, 12, 652–662.</p>
+</div>
+<div id="ref-barber1996quickhull">
+<p>2.Barber, C.B., Dobkin, D.P. &amp; Huhdanpaa, H. (1996). The quickhull algorithm for convex hulls. <em>ACM Transactions on Mathematical Software (TOMS)</em>, 22, 469–483.</p>
+</div>
+<div id="ref-baskerville">
+<p>3.Baskerville, E.B., Dobson, A.P., Bedford, T., Allesina, S., Anderson, T.M. &amp; Pascual, M. (2011). Spatial guilds in the serengeti food web revealed by a bayesian group model. <em>PLoS Computational Biology</em>, Vol. 7, e1002321.</p>
+</div>
+<div id="ref-bavelas1950communication">
+<p>4.Bavelas, A. (1950). Communication patterns in task-oriented groups. <em>Journal of the acoustical society of America</em>, 22.</p>
+</div>
+<div id="ref-bonacich1987power">
+<p>5.Bonacich, P. (1987). Power and centrality: A family of measures. <em>American journal of sociology</em>, 1170–1182.</p>
+</div>
+<div id="ref-cattell1966scree">
+<p>6.Cattell, R.B. (1966). The scree test for the number of factors. <em>Multivariate behavioral research</em>, 1, 245–276.</p>
+</div>
+<div id="ref-chatterjee2014matrix">
+<p>7.Chatterjee, S. &amp; others. (2014). Matrix estimation by universal singular value thresholding. <em>The Annals of Statistics</em>, 43, 177–214.</p>
+</div>
+<div id="ref-igraph">
+<p>8.Csardi, G. &amp; Nepusz, T. (2006). The igraph software package for complex network research. <em>InterJournal</em>, Complex Systems, 1695.</p>
+</div>
+<div id="ref-dallariva2015exploring">
+<p>9.Dalla Riva, G.V. &amp; Stouffer, D.B. (2015). Exploring the evolutionary signature of food webs’ backbones using functional traits. <em>Oikos</em>, Online early view.</p>
+</div>
+<div id="ref-shapes">
+<p>10.Dryden, I.L. (2013). <em>Shapes: Statistical shape analysis</em>.</p>
+</div>
+<div id="ref-dryden1998statistical">
+<p>11.Dryden, I.L. &amp; Mardia, K.V. (1998). <em>Statistical shape analysis</em>. Wiley Chichester.</p>
+</div>
+<div id="ref-estrada2005subgraph">
+<p>12.Estrada, E. &amp; Rodriguez-Velazquez, J.A. (2005). Subgraph centrality in complex networks. <em>Physical Review E</em>, Vol. 71, 056103.</p>
+</div>
+<div id="ref-fishkind2013consistent">
+<p>13.Fishkind, D.E., Sussman, D.L., Tang, M., Vogelstein, J.T. &amp; Priebe, C.E. (2013). Consistent adjacency-spectral partitioning for the stochastic block model when the model parameters are unknown. <em>SIAM Journal on Matrix Analysis and Applications</em>, 34, 23–39.</p>
+</div>
+<div id="ref-freeman1977set">
+<p>14.Freeman, L.C. (1977). A set of measures of centrality based on betweenness. <em>Sociometry</em>, 40, 35–41.</p>
+</div>
+<div id="ref-gavish2014optimal">
+<p>15.Gavish, M. &amp; Donoho, D.L. (2014). The optimal hard threshold for singular values is. <em>Information Theory, IEEE Transactions on</em>, 60, 5040–5053.</p>
+</div>
+<div id="ref-geometry">
+<p>16.Habel, K., Grasman, R., Stahel, A., Stahel, A. &amp; Sterratt, D.C. (2014). <em>Geometry: Mesh generation and surface tesselation</em>.</p>
+</div>
+<div id="ref-holland1983stochastic">
+<p>17.Holland, P.W., Laskey, K.B. &amp; Leinhardt, S. (1983). Stochastic blockmodels: First steps. <em>Social networks</em>, 5, 109–137.</p>
+</div>
+<div id="ref-Weddell">
+<p>18.Jennings, S., Greenstreet, S., Hill, L., Piet, G., Pinnegar, J. &amp; Warr, K. (2002). Long-term trends in the trophic structure of the north sea fish community: Evidence from stable-isotope analysis, size-spectra and community metrics. <em>Marine Biology</em>, Vol. 141, 1085–1097.</p>
+</div>
+<div id="ref-jolliffe2002principal">
+<p>19.Jolliffe, I.T. (2002). <em>Principal component analysis</em>. Springer-Verlag.</p>
+</div>
+<div id="ref-jordan2009keystone">
+<p>20.Jordán, F. (2009). Keystone species and food webs. <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em>, Vol. 364, 1733–1741.</p>
+</div>
+<div id="ref-jordan2009trophic">
+<p>21.Jordán, F., Liu, W.-C. &amp; Mike, Á. (2009). Trophic field overlap: A new approach to quantify keystone species. <em>Ecological Modelling</em>, Vol. 220, 2899–2907.</p>
+</div>
+<div id="ref-klein1993resistance">
+<p>22.Klein, D.J. &amp; Randić, M. (1993). Resistance distance. <em>Journal of Mathematical Chemistry</em>, 12, 81–95.</p>
+</div>
+<div id="ref-caribbean">
+<p>23.Opitz, S. (1996). Trophic interactions in caribbean coral reefs. <em>The WorldFish Center Working Papers</em>.</p>
+</div>
+<div id="ref-R">
+<p>24.R Core Team. (2014). <em>R: A language and environment for statistical computing</em>. R Foundation for Statistical Computing, Vienna, Austria.</p>
+</div>
+<div id="ref-rohe2011spectral">
+<p>25.Rohe, K., Chatterjee, S. &amp; Yu, B. (2011). Spectral clustering and the high-dimensional stochastic blockmodel. <em>The Annals of Statistics</em>, 1878–1915.</p>
+</div>
+<div id="ref-stephenson1989rethinking">
+<p>26.Stephenson, K. &amp; Zelen, M. (1989). Rethinking centrality: Methods and examples. <em>Social Networks</em>, Vol. 11, 1–37.</p>
+</div>
+<div id="ref-sussman2012consistent">
+<p>27.Sussman, D.L., Tang, M., Fishkind, D.E. &amp; Priebe, C.E. (2012). A consistent adjacency spectral embedding for stochastic blockmodel graphs. <em>Journal of the American Statistical Association</em>, 107, 1119–1128.</p>
+</div>
+<div id="ref-deVisser">
+<p>28.Visser, S.N. de, Freymann, B.P. &amp; Olff, H. (2011). The serengeti food web: Empirical quantification and analysis of topological changes under increasing human impact. <em>Journal of Animal Ecology</em>, Vol. 80, 484–494.</p>
+</div>
+<div id="ref-wang1987stochastic">
+<p>29.Wang, Y.J. &amp; Wong, G.Y. (1987). Stochastic blockmodels for directed graphs. <em>Journal of the American Statistical Association</em>, 82, 8–19.</p>
+</div>
+<div id="ref-zhu2006automatic">
+<p>30.Zhu, M. &amp; Ghodsi, A. (2006). Automatic dimensionality selection from the scree plot via the use of profile likelihood. <em>Computational Statistics &amp; Data Analysis</em>, Vol. 51, 918–930.</p>
+</div>
+</div>
+</body>
+</html>

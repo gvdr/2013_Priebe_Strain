@@ -102,3 +102,4 @@ sympy-plots-for-*.tex/
 *.tdo
 # xindy
 *.xdy
+.Rproj.user

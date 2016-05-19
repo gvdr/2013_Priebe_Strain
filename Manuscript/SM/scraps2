@@ -1,0 +1,53 @@
+The importance of a species in a food web has been assesed by ecologists 
+in a variety of way which span most of the
+centrality measures based on network structure \cite{estrada2007characterization,martin2010centrality,
+harary1959status,freeman1977set,freeman1979centrality,bonacich1987power,brin1998anatomy}.
+All these measures, however, rely on a rigidly deterministic approach to food
+webs, albeit the increasing evidence that ecological networks are inherently
+stocastic \cite{Poisotetal,XXX}.
+
+\paragraph{Random Dot Product Graph}
+
+A natural framework for network partitioning is the stochastic blockmodel graph
+theory, originally developed for undirected social network analysis
+\cite{holland1983stochastic} and subsequently generalised to directed graphs
+\cite{wang1987stochastic}.  Under this model, each of the $n$ species of a food
+web are assigned to one of $K$ blocks whose within and between linking
+probability are given by the model parameters. We do not observe the assignment
+of the species; rather, we observe the realized adjacency matrix. It has been
+proved that a consistent block estimator based on the spectral partitioning of
+the normalized Laplacian of the adjacency matrix exist \cite{rohe2011spectral},
+that is the proportion of nodes assigned to the wrong group by the estimator
+converge in probability to zero as the size of the graph grows to infinity. We
+will present the definitions in the context of \textit{Random Dot Product}
+graphs \cite{fishkind2013consistent}, which can be seen as a particular example
+of stochastic blockmodels.
+
+We will consider the generalization of the latter result to the spectral
+partitioning of adjacency matrices \cite{sussman2012consistent}. Here we
+propose a measure, called the {\em embedding strain}, which express the
+difference between the original food web and the food web derived by the loss,
+or non-observation, of one of the species. The method doesn't require the
+knowledge of the number of the blocks but just an upper bound on the rank of
+the communication probability matrix. The computation of the embedding
+strain of each node via simple brute force is feasible for food webs of
+usual size.
+
+In summary, the proposed method consists in computing the estimated parameter
+matrix for the original observed adjacency matrix, as shown in
+\cite{fishkind2013consistent}, removing the species $i$ from the graph
+embedding and computing the distance of the reduced matrix to the estimated
+parameter matrix for the modified adjacency matrix obtained by removing from
+the original food web the species $i$.
+
+We will apply it to two compilations of the Serengeti food web, namely
+\cite{baskerville2011spatial} and \cite{de2011serengeti}, the Caribbean marine
+food web in its original compilation \cite{rezende2009compartments} and to the
+food web we derived from the latter clustering the species in their families.
+
+Finally we will discuss a possible interpretation of the results in terms of
+species loss, wherein the strain represents how much a food web change its
+geometry after the lost species extinction, and in terms of non observation of
+a one species due to possible sampling error during the food web compilation
+(see \cite[Section 11.2]{rossberg2013food}), wherein the strain represents
+how much a statistical description of the food web may be different.
