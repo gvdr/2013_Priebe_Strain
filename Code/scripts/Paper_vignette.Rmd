@@ -1,0 +1,492 @@
+---
+title: "The distribution of uniqueness and centrality in food webs"
+author: "Giulio Valentino Dalla Riva"
+date: "June 27, 2016"
+output: 
+  html_document: 
+    highlight: zenburn
+    keep_md: yes
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = FALSE, dev = 'png')
+options(stringsAsFactors = FALSE)
+```
+
+## Introduction
+
+In this vignette we will see how we used one dataset of weighted ecological networks to test the hypothesis that central species in ecological networks are ecologically unique, i.e., they play unique roles in the food webs.
+
+This data analysis is motivated by an ecological conundrum: indeed, the evidence exhibited in the literature point both in the direction and contrary to the hypothesis. There is also a more theoretical motivation, that is, exploring the possibility of analysing food webs in their low dimensional geometric representation we introduced in recent paper (Dalla Riba and Stouffer, 2016, Oikos). Finally, we also address the issue that many
+
+### Implementation: tidy
+We will operate within the tidy-verse, make extensive use of piping.
+
+```{r,warning=FALSE,message=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(stringr)
+library(purrr)
+library(tidyr)
+library(dplyr)
+library(magrittr)
+```
+
+For readingness, we will also rely on a set of functions we will not discuss directly in this vignette. The input/output functions we source from `io.R` are described in the details in another vignette, and they permit us to transform the _Pajek_ raw data to the data we use here. The ancillary functions in `ancillary.R` take charge of some minor operations, such as sourcing whole directories. All the plot functions are collected in `plot_functs.R`: they are basic layering over `ggplot2`.
+
+```{r}
+#the location of io.R:
+source("../ancillary.R")
+source("../io.R")
+source("../plot_functs.R")
+
+#the location of the R files of ecolowdgy: 
+ecolowdgy.dir <- "../../../2016_Ecolowdgy/ecolowdgy/R/"
+
+#where to save the zip archive with the raw weighted webs:
+dest.file <- "../../Data/Raw/Weighted_webs.zip"
+
+#either `FALSE` or the folder where to save the Rdata
+Save.weighted.igraphs <- FALSE
+```
+
+## Data
+
+We analyse a set of weighted food webs from http://vlado.fmf.uni-lj.si/pub/networks/data/bio/foodweb/foodweb.htm (see the website for more informations). The original data was in the _SCOR_ format (July 2002 by R.E. Ulanowicz), it has been transformed to _Pajek_ by Vladimir Batagelj in 2004. Here we further transform them to _igraph_ objects and get their weighted adjacency matrices.
+
+```{r}
+"http://vlado.fmf.uni-lj.si/pub/networks/data/bio/FoodWeb/Webs_paj.zip" %>%
+  download.file(dest.file, mode="wb")
+dest.file %>% unzip(list=TRUE) -> webs.list
+webs.list
+```
+
+How many? (`-1` as we do not want to count the folder itself)
+
+```{r}
+L <- dim(webs.list)[1] - 1
+```
+
+Obtained the name of the food webs present in the file, and having already coded a little function to transform _Pajek projects_ into `igraph` objects, we build a nested data frame with a column for the food webs' adjacency matrices. We keep them in a wide format as this allows a prompter application of our mathematical tools.
+
+```{r, message=FALSE}
+w_adjs_df <- data_frame(name_web = webs.list$Name[1:L])  %>%
+  mutate(
+    adjacency = map(name_web, ~.x %>%
+                            unz(dest.file,.) %>%
+                            adjacency_from_paj %>%
+                            tbl_df() )
+               ) %>%
+  mutate(name_web =  name_web %>%
+                     str_replace_all("[\\.]?paj[\\/]?",""))
+```
+
+And, we store store it, if we want, as an `.Rdata` file for a quick retrieval.
+
+```{r}
+if(Save.weighted.igraphs != FALSE){
+  save(w_adjs_df, file = Save.weighted.igraphs)
+}
+```
+
+### What do we have in the dataset?
+
+A quick look at our data frame already allows us to retrieve some information, such as the number of nodes in the ecological networks:
+
+```{r}
+w_adjs_df
+```
+
+### Weight distribution
+
+Or we can look at the distribution of interaction weights in any of them:
+
+```{r}
+w_adjs_df %>%
+  filter(name_web %in% "Florida") %>%
+  select(-name_web) %>%
+  unnest(adjacency) %>%
+  as.matrix.data.frame() %>% # just for this quick sanity test, we don't need row names
+  {hist(log(.),breaks = 20)}
+```
+
+It looks rather Log-normal (and we leave normality testing for later).
+
+## Methods
+
+For each matrix, we compute each species' abstract traits from the weighted, the log transformed weighted and the topological adjacency matrix (see Dalla Riva & Stouffer, Oikos (2016), for more details).
+
+We will use some of the functions in the `ecolowdgy` package (to appear). The package provides an analytical framwork for studying food webs as represented in a low dimensional geometrical space (somewhat akin to Hutchinson's _hyperdimensional cube_).
+
+_Now is a good moment to check where the package is. I provided it here for ease of use of this vignette, soon it will be possible to download it from its github repository._
+
+```{r}
+list.files(ecolowdgy.dir)
+sourceDir(ecolowdgy.dir)
+```
+
+### Matrix transformations
+
+First of all we increase the data frame with the log transformed and the topological transformed versions of the adjacency matrix. While we do it we collect also some basic descriptive information about the networks, such as their dimension (the number of nodes), the number of ecological interactions they show and their connectance (the ratio between the number of nodes and the square of the number of ecological interactions).
+
+```{r}
+w_adjs_df %<>% mutate(
+    adjacency_log = map(adjacency, ~.x %>%
+                                 as.matrix() %>%
+                                 {ifelse(. > 0,log(.),-100)} %>%
+                                 tbl_df()),
+    
+    adjacency_topo = map(adjacency, ~.x %>%
+                                 as.matrix() %>%
+                                 {ifelse(. > 0,1,0)} %>%
+                                 tbl_df()),
+    
+    dimension = map(adjacency_topo,
+      ~.x %>% nrow()) ,
+    
+    n_link = map(adjacency_topo,
+      ~.x %>% sum())
+) %>%
+  unnest(dimension,n_link) %>%
+  mutate(connectance = n_link / (dimension ^ 2))
+```
+
+Let's take a look at what we have. We filter one food web, select its adjacency---either the original weighted version, the log transformed on or the topological transformation of it---, unnest it and plot it as a matrix.
+
+```{r}
+original <- w_adjs_df %>%
+  plot_adjacency("Florida","adjacency","Adjacency")
+
+logged <- w_adjs_df %>%
+  plot_adjacency("Florida","adjacency_log","Log-transformed")
+
+topoed <- w_adjs_df %>%
+  plot_adjacency("Florida","adjacency_topo","Topological")
+
+grid.arrange(original, logged, topoed, ncol = 3)
+```
+
+Not the best represantation, we could have done something better with `ggplot` but it's enough to understand the transformation are doing what we want: indeed, the three raster images looks similar.
+
+### Centrality measures: degree
+
+We are all set to collect some classic centrality measures about the nodes. A basic one is the number of portion of interactions each node is involved in, either as a source of the interaction or as a sink. This measure can be measured from the topological adjacency---and the measurament value will be the count the number of interactions---or in one of the two weighted adjacency---in which case the measurement value will be weighted by the weighted of the interactions.
+
+```{r}
+w_adjs_df %<>% mutate(
+  degree_in = map(adjacency,
+                         ~.x %>% colSums()),
+  degree_out = map(adjacency,
+                          ~.x %>% rowSums()),
+  degree_in_log = map(adjacency_log,
+                         ~.x %>% colSums()),
+  degree_out_log = map(adjacency_log,
+                          ~.x %>% rowSums()),
+  degree_in_topo = map(adjacency_topo,
+                         ~.x %>% colSums()),
+  degree_out_topo = map(adjacency_topo,
+                          ~.x %>% rowSums())
+)
+```
+
+### Network Traits
+
+In the cited Oikos paper we introduce the concept of abstract functional traits for species in food webs. They describe the role of a species in a food web as a predator (consumer) and as a prey (resource) determining its interaction probability with the other species.
+
+To keep the code readable, we better use a couple of ancillary functions that we will use in the `mutate`+`map` flow.
+
+```{r}
+traits_nest <- function(x,Rank,traits_mode) {
+data.frame(node_name = colnames(x),
+           rank = Rank,
+           mode = traits_mode,
+           trait = traits(x, Rank,
+                          Partition = "uni",
+                          Mode = traits_mode)
+           )
+}
+
+traits_in_out <- function(x,Rank){
+  bind_rows(
+    traits_nest(x,Rank,"inward"),
+    traits_nest(x,Rank,"outward")
+  )
+}
+```
+
+And compute them.
+
+```{r}
+Rank <- 4
+w_adjs_df %<>% mutate(
+    traits = map(adjacency,
+                        ~.x %>% traits_in_out(Rank)
+                        ),
+    
+    traits_log = map(adjacency_log,
+                        ~.x %>% traits_in_out(Rank)
+                        ),
+    
+    traits_topo = map(adjacency_topo,
+                        ~.x %>% traits_in_out(Rank)
+                        )
+    )
+```
+
+What have we obtained so far:
+```{r}
+w_adjs_df
+```
+
+### A quick sanity test
+
+Let's do a sanity test and see if anything of what we produced looks familiar. Let's have a look at the first two coordinates of the inward functional traits as estimated from the Everglade's food-web topology:
+
+```{r}
+w_adjs_df %>%
+  plot_traits("Florida","traits_topo","inward")
+```
+
+### Centrality: Functional uniqueness
+
+Finally, let's compute the functional uniqueness of the species. We define it as the average distance from one species to the rest of the community, as computed in one of the original, log-transformed or topological functional-trait space. Again, for sake of clearity, let's use an ancillary function and the `mutate`+`map` flow.
+
+```{r}
+get_trait_matrix <- function(traits_df,Mode){
+
+  temp_data <- traits_df %>%
+    filter(mode %in% Mode) %>%
+    select(-rank,-mode)
+
+  temp_matrix <- temp_data %>% 
+    select(-node_name) %>%
+    as.matrix()
+
+  row.names(temp_matrix) <- temp_data$node_name
+
+  return(temp_matrix)
+}
+
+get_mean_dist <- function(trait_mat){
+  dist(trait_mat, upper = TRUE) %>%
+  as.matrix() %>% rowMeans() %>%
+  {tibble(node_name = names(.),
+         MeanDist = .)} %>% return()
+}
+
+get_uniqueness_in_out <- function(traits_df){
+  bind_rows(
+    traits_df %>%
+    get_trait_matrix("inward") %>%
+    get_mean_dist %>%
+    cbind(Mode = "inward",.)
+    ,
+    traits_df %>%
+    get_trait_matrix("outward") %>%
+    get_mean_dist %>%
+    cbind(Mode = "outward",.)
+  ) %>% return()
+}
+```
+
+Now we are ready to increase the data frame.
+
+```{r}
+w_adjs_df %<>% mutate(
+    Uniqueness = map(traits,
+                        ~.x %>% get_uniqueness_in_out()
+                        ),
+    
+    Uniqueness_log = map(traits_log,
+                        ~.x %>% get_uniqueness_in_out()
+                        ),
+    
+    Uniqueness_topo = map(traits_topo,
+                        ~.x %>% get_uniqueness_in_out()
+                        )
+    )
+```
+
+## Results
+
+### Exposing the centralities
+
+Now we have all the necessary data about the nodes in the ecological networks to explore their distribution in the network and, as we do in the manuscript, their correlation with other ecological (network) indicators---such as other measures of node centrality. We use a light function to expose the desidered uniqueness values from our nested data frame.
+
+```{r}
+expose_uniqueness <- function(webs_df,Web_name,Transformed,Mode_uniqueness,
+                              Arrange = F){
+    webs_df %>%
+    filter(name_web %in% Web_name) %>%
+    select_(Transformed) %>%
+    unnest() %>%
+    filter(Mode %in% Mode_uniqueness) %>%
+    select(-Mode) -> Uniqs
+    if(Arrange){
+      Uniqs  %>%
+      arrange(-MeanDist) %>%
+      return()
+    } else {
+      Uniqs  %>% return()
+    }
+}
+
+expose_degree <- function(webs_df,Web_name,Degree_measurement,
+                              Arrange = F){
+    
+  data_frame(node_name = webs_df %>%
+                      filter(name_web %in% Web_name) %>%
+                      select(adjacency) %>%
+                      unnest() %>% 
+                      names()
+  ) %>% bind_cols(
+    webs_df %>%
+    filter(name_web %in% Web_name) %>%
+    select_(Degree_measurement) %>%
+    unnest()
+  ) -> deg
+  
+    if(Arrange){
+      deg  %>%
+      arrange_(-Degree_measurement) %>%
+      return()
+    } else {
+      deg  %>% return()
+    }
+}
+```
+
+### Is the topological approximation sensible?
+
+And we give a look at a scatter plot of the uniqueness values estimated from the topological and the log-transformed adjacency matrix: how much information do we loose when we rank species just from their topological networks (without any information about the link weights)?
+
+```{r}
+w_adjs_df %>%
+  plot_uniqs("Florida",c("Uniqueness_topo","Uniqueness_log"),"inward")
+```
+
+In the rather large _Florida_ food web---128 nodes---not too much.
+
+```{r}
+w_adjs_df %>%
+  plot_uniqs("Rhode",c("Uniqueness_topo","Uniqueness_log"),"inward")
+```
+
+The correlation between topological uniqueness and log-transformed uniquess may be less significant for the much smaller _Rhode_ food web (20 nodes). Are we looking at a general trend here?
+Let's gather the information from a linear mode and see if there's an increasing trend with larger webs.
+
+```{r}
+uniqueness_correlation <- function(webs_df,Web_name,Tran_x_y,Mode_uniqueness){
+  expose_uniqueness(webs_df,Web_name,Tran_x_y[1],Mode_uniqueness) %>%
+  left_join(
+      expose_uniqueness(webs_df,Web_name,Tran_x_y[2],Mode_uniqueness),
+      by = c("node_name")
+    ) %>%
+  lm(MeanDist.x ~ MeanDist.y,data = .) %>%
+  broom::glance() %>%
+    return()
+}
+```
+
+```{r}
+X_Y <- c("Uniqueness_topo","Uniqueness_log")
+Mode_ars <- "outward"
+w_adjs_df %<>%
+  mutate(
+    adj_r_squared_topo_log_outward = map(
+      name_web,
+      ~.x %>% uniqueness_correlation(w_adjs_df,.,X_Y,Mode_ars)
+  )
+)
+```
+
+So, does the quality of the approximation depends on the dimension of the food web?
+
+```{r}
+adjs_r <- w_adjs_df %>%
+  unnest(adj_r_squared_topo_log_outward) %>%
+  ggplot(aes(dimension,adj.r.squared)) +
+  geom_point()  +
+  xlab("dimension") + ylab("Adjusted R squared") +
+  theme_minimal()
+
+pval <- w_adjs_df %>%
+  unnest(adj_r_squared_topo_log_outward) %>%
+  ggplot(aes(dimension,p.value)) +
+  geom_hline(yintercept = 0.05) +
+  geom_point()  +
+  xlab("dimension") + ylab("p value") +
+  theme_minimal()
+
+grid.arrange(adjs_r, pval, top = "Topological vs. Log")
+```
+
+Not really, as far as we can tell. The correlation is always quite strong, no matter the dimension of the web. Maybe, afterall, we can trust the ranking we gather from the topological representations of the ecological networks.
+
+### Are degree centrality and uniqueness correlated?
+
+There is something more to our interest. If we look at the _Florida_ food web, and in particular at the distribution of its node degrees and uniqueness, they appear correlated: central nodes are more unique.
+
+```{r}
+out_p <- w_adjs_df %>%
+  plot_deg_uniq("Florida",c("Uniqueness_topo","degree_out_topo"),"outward")
+
+in_p <- w_adjs_df %>%
+  plot_deg_uniq("Florida",c("Uniqueness_topo","degree_in_topo"),"inward")
+
+grid.arrange(out_p, in_p, ncol = 2)
+```
+
+This, and a lot of ecological literature, motivates us to explore the hypothesis that uniqueness and centrality are correlated. In fact, the literature points in opposing direction, with suggestive evidence of both negative and positive (as well as null) correlation. Thus, the result will be particularly interesting.
+
+```{r}
+centrality_correlation <- function(webs_df,Web_name,Tran_x_y,Mode_uniqueness){
+  deg_name <- Tran_x_y[2] %>% as.character()
+  y <- expose_uniqueness(webs_df,Web_name,Tran_x_y[1],Mode_uniqueness) %>%
+    select(-node_name) %>% unlist() %>% as.numeric()
+  x <- expose_degree(webs_df,Web_name,deg_name) %>%
+    select(-node_name) %>% unlist() %>% as.numeric()
+  lm(y ~ x) %>%
+  broom::glance() %>%
+   return()
+}
+
+w_adjs_df %<>%
+  mutate(
+    uniqueness_degree_topo_out = map(
+      name_web,
+      ~.x %>% centrality_correlation(w_adjs_df,.,
+                                     c("Uniqueness_topo","degree_out_topo"),
+                                     "outward"))
+      ,
+      uniqueness_degree_topo_in = map(
+      name_web,
+      ~.x %>% centrality_correlation(w_adjs_df,.,
+                                     c("Uniqueness_topo","degree_in_topo"),
+                                     "inward"))
+)
+```
+
+Let us see the result of our computations. First by looking at the data frames:
+
+```{r}
+w_adjs_df %>%
+  select(uniqueness_degree_topo_in) %>%
+  unnest()
+
+w_adjs_df %>%
+  select(uniqueness_degree_topo_out) %>%
+  unnest()
+```
+
+And then by looking at them graphically.
+
+```{r}
+w_adjs_df %>%
+  plot_summary_stat(c("uniqueness_degree_topo_in","uniqueness_degree_topo_out"),
+                    "adj.r.squared")
+```
+
+Finally, we can conclude that in our dataset the degree centrality of nodes in an ecological network a predictor of their ecological uniqueness.

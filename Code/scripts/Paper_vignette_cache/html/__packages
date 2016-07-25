@@ -1,0 +1,12 @@
+base
+ggplot2
+magrittr
+stringr
+purrr
+tidyr
+dplyr
+network
+igraph
+intergraph
+reshape2
+gridExtra

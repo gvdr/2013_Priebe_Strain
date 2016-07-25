@@ -1,0 +1,159 @@
+---
+title: "Readin data from Pajek projects"
+author: "Giulio Valentino Dalla Riva"
+date: "June 27, 2016"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting the good stuff out the messy format
+
+In the zoo of format encoding food webs, _pajek_ is not my cup of tea. For one thing, it does not really cope well with **igraph**. And I like **igraph**. Alas!, a lot of old data is still available only as a Pajek project, so we are going to extract an `igraph` object from a Pajek project file (usually they are recognisable for the `.paj` suffix).
+
+We will need some of the classic R libraries and three libraries, `network` to handle Pajek files, `igraph` for producing the desired data structures and `intergraph` to translate between Pajek and igraph.
+
+```{r}
+required_packages <- c("network",
+                       "igraph",
+                       "intergraph",
+                       "magrittr",
+                       "dplyr",
+                       "reshape2",
+                       "purrr")
+
+source("../ancillary.R") #provides try_and_install
+try_and_install(required_packages)
+
+library(magrittr)
+```
+
+We are using an interesting set of weighted Food Web, put together by (Vladimir Batagelj)[http://vlado.fmf.uni-lj.si/pub/networks/data/bio/foodweb/foodweb.htm] in 2004. To explain the translation, we already manually downloaded and unzipped the _Food webs_ (`Webs_paj.zip`) file to a local folder (`[Project]/Data/Elaborated/paj/`).
+
+Read in pajek networks with `network` and translate them to `igraph` objects with `intergraph`:
+
+```{r}
+Cheaspeake_File <- '../../Data/Elaborated/paj/Chesapeake.paj'
+Graph_test <- Cheaspeake_File %>% network::read.paj()
+Graph_test %>% summary()
+Graph_test$networks[[1]] %>% summary()
+Net_test <- Graph_test$networks[[1]]
+iGraph_test <- Net_test %>% intergraph::asIgraph()
+```
+
+Have we done it? Let's get a look to the graph:
+
+```{r}
+iGraph_test %T>%
+  summary %>%
+  plot
+```
+
+Where are the edge weights?
+
+```{r}
+iGraph_test %>% igraph::list.edge.attributes()
+iGraph_test %>% igraph::list.vertex.attributes()
+```
+
+Well, there seems to be something, but not really clear what.
+Let's take a better look.
+
+```{r}
+igraph::V(iGraph_test)$vertex.names %>% head
+igraph::V(iGraph_test)$na %>% summary
+igraph::E(iGraph_test)$na %>% summary
+igraph::E(iGraph_test)$chesapeake %>% summary
+```
+
+So, the interaction weights seems to be in `chesapeake`---the variable we are interested in changes name for each food web!---the `na` are all `FALSE` logicals---we can safely ignore them---and `vertex.names` are the names of the nodes in the food web. Let's remove the useless stuff and clear up things.
+
+```{r}
+igraph::V(iGraph_test)$name <- igraph::V(iGraph_test)$vertex.names
+weight_name <- igraph::get.edge.attribute(iGraph_test)[1] %>% names
+weights <- igraph::get.edge.attribute(iGraph_test,weight_name) %>% as.vector
+iGraph_test %<>% igraph::set_edge_attr("weight", value = weights)
+iGraph_test %<>% igraph::remove.edge.attribute("na") %>%
+  igraph::remove.edge.attribute(weight_name) %>%
+  igraph::remove.vertex.attribute("na") %>%
+  igraph::remove.vertex.attribute("vertex.names")
+```
+
+We start seeing something:
+
+```{r}
+iGraph_test %>% igraph::plot.igraph(
+                     edge.width=log(igraph::E(iGraph_test)$weight)/3,
+                     edge.curved=TRUE
+                     )
+```
+
+Well, the plot is horrible but everything is there. Now let's get the weighted adjacency back and let's forget pajek!
+
+```{r}
+Adjacency_test <- iGraph_test %>%
+  igraph::get.adjacency(attr = "weight",
+                sparse = F)
+```
+
+Quick sanity test: do we have the same number of edges and vertices?
+
+```{r}
+dim(Adjacency_test)[1] == igraph::vcount(iGraph_test)
+sum(Adjacency_test > 0) == igraph::ecount(iGraph_test)
+```
+
+Cool, now we can do science.
+
+Let's wrap everything up in a function:
+
+```{r}
+adjacency_from_paj <- function(name,base){
+  
+  Net_paj <- network::read.paj(paste0(base,name))
+  Net_net <- Net_paj$networks[[1]]
+  Web <- intergraph::asIgraph(Net_net)
+  
+  igraph::V(Web)$name <- igraph::V(Web)$vertex.names
+  weight_name <- names(igraph::get.edge.attribute(Web)[1])
+  weights <- as.vector(igraph::get.edge.attribute(Web,weight_name))
+  Web <- igraph::set_edge_attr(Web,"weight", value = weights)
+  Web <- igraph::remove.edge.attribute(Web,"na")
+  Web <- igraph::remove.edge.attribute(Web,weight_name)
+  Web <- igraph::remove.vertex.attribute(Web,"na")
+  Web <- igraph::remove.vertex.attribute(Web,"vertex.names")
+  
+  Adjacency_test <- igraph::get.adjacency(Web,attr = "weight",sparse = F)
+  
+  return(Adjacency_test)
+}
+```
+
+and let's test it:
+
+```{r}
+Michigan_ad <- adjacency_from_paj("Michigan.paj","../../Data/Elaborated/paj/")
+sum(Michigan_ad > 0)
+max(Michigan_ad, na.rm = T)
+```
+
+We can, for example, give a look at the distribution of the weights in the Michigan Food Web:
+
+```{r}
+par(mfrow=c(1,2))
+hist(log(Michigan_ad),
+     breaks = 10,
+     xlab = "Log-weight of the interaction")
+image(log(Michigan_ad), 
+      asp = 1,
+      xlim = c(0,1),
+      ylim = c(0,1))
+```
+
+As expected from theory, they are (roughly) log-normal, and there may be some significant nestedness?
+
+A slightly improved version of `adjacency_from_paj()` is available from `io.R` : it works exactly as the one I showcased here but performs a bunch of additional pre-processing tests as the dataset we intend to use is even more messy than what we thought. Isn't that always the case?
